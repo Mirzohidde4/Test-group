@@ -52,6 +52,7 @@ class BotMessage(models.Model):
 
 
 class InlineButton(models.Model):
+    bot_message = models.ForeignKey(BotMessage, on_delete=models.CASCADE, verbose_name='savol')
     text = models.CharField(max_length=100, verbose_name='tugma matni')
     text_response = models.CharField(max_length=100, verbose_name='tugma bosilganda')
     is_correct = models.BooleanField(default=False, verbose_name="to'g'ri / hato")
@@ -60,6 +61,7 @@ class InlineButton(models.Model):
     class Meta:
         verbose_name = 'Tugma'
         verbose_name_plural = 'Tugmalar'
+        ordering = ['id']
 
     def __str__(self):
         return self.text
