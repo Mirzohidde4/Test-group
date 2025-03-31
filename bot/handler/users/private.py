@@ -5,8 +5,8 @@ from aiogram.filters.command import CommandStart
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from asgiref.sync import sync_to_async
 from main.models import UserMod
-from ..settings.states import UserState
-from ..settings.buttons import CreateInline, Createreply
+from ...settings.states import UserState
+from ...settings.buttons import CreateInline, Createreply
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")

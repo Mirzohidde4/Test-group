@@ -28,7 +28,7 @@ class AdminMod(models.Model):
 
 
 class GroupMod(models.Model):
-    group_id = models.PositiveBigIntegerField(verbose_name='guruh/kanal id')
+    group_id = models.BigIntegerField(verbose_name='guruh/kanal id')
     group_name = models.CharField(verbose_name='guruh/kanal nomi', max_length=150)
 
     def __str__(self):
