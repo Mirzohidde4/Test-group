@@ -8,7 +8,6 @@ from asgiref.sync import sync_to_async
 
 
 async def get_admin_id():
-    """Bazadan admin ID'sini asinxron olish"""
     return await sync_to_async(lambda: AdminMod.objects.first())()
 
 

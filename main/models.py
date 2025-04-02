@@ -28,20 +28,21 @@ class AdminMod(models.Model):
 
 
 class GroupMod(models.Model):
-    group_id = models.BigIntegerField(verbose_name='guruh/kanal id')
-    group_name = models.CharField(verbose_name='guruh/kanal nomi', max_length=150)
+    group_id = models.BigIntegerField(verbose_name='guruh / kanal id')
+    group_name = models.CharField(verbose_name='guruh / kanal nomi', max_length=150)
 
     def __str__(self):
         return self.group_name
 
     class Meta:
-        verbose_name = 'Guruh'
-        verbose_name_plural = 'Guruhlar'
+        verbose_name = 'Guruh / Kanal'
+        verbose_name_plural = 'Guruhlar / Kanallar'
 
 
 class BotMessage(models.Model):
     message_text = models.TextField(verbose_name='xabar matni')
-    to_group = models.ForeignKey(GroupMod, on_delete=models.CASCADE, verbose_name='guruh/kanal')
+    to_group = models.ManyToManyField(GroupMod, verbose_name='manzil', related_name='manzillar')
+    photo = models.ImageField(upload_to='images/', verbose_name='rasm', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Xabar'
@@ -52,10 +53,12 @@ class BotMessage(models.Model):
 
 
 class InlineButton(models.Model):
-    bot_message = models.ForeignKey(BotMessage, on_delete=models.CASCADE, verbose_name='savol')
+    bot_message = models.ForeignKey(BotMessage, on_delete=models.CASCADE, verbose_name='savol', related_name='buttons')
     text = models.CharField(max_length=100, verbose_name='tugma matni')
     text_response = models.CharField(max_length=100, verbose_name='tugma bosilganda')
-    is_correct = models.BooleanField(default=False, verbose_name="to'g'ri / hato")
+    row = models.IntegerField(default=1, null=True, blank=True, verbose_name='qator') 
+    position = models.IntegerField(default=1, null=True, blank=True, verbose_name='raqam') 
+    is_correct = models.BooleanField(default=False, verbose_name="to'g'ri")
     static = models.BooleanField(default=False, verbose_name='static')
 
     class Meta:
