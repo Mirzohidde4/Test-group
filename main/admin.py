@@ -1,14 +1,9 @@
 from django.contrib import admin
 from .models import *
-import os
 from django.contrib.auth.models import User, Group
 from unfold.admin import ModelAdmin, StackedInline
-from asgiref.sync import sync_to_async, async_to_sync
-from config.settings import BOT_TOKEN
-from aiogram import Bot
-from collections import defaultdict
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, FSInputFile
-from django.core.files.storage import default_storage
+from asgiref.sync import async_to_sync
+from bot.settings.buttons import send_messages_to_groups
 
 
 admin.site.unregister(User)
@@ -42,50 +37,6 @@ class InlineButtons(StackedInline):
     extra = 1
     fields = ['text', 'text_response', 'row', 'position', 'is_correct', 'static']
     ordering_field = ['text']
-
-
-
-async def send_messages_to_groups(bot_message):
-    bot_token = BOT_TOKEN
-    bot = Bot(token=bot_token)
-    print(bot_message)
-
-    groups = await sync_to_async(lambda: list(bot_message.to_group.all()), thread_sensitive=True)()
-    if not groups:
-        print("❌ Нет групп для отправки")
-        return
-
-    text = bot_message.message_text
-    buttons = await sync_to_async(lambda: list(bot_message.buttons.all()), thread_sensitive=True)()
-
-    for group in groups:
-        group_chat_id = group.group_id
-
-        keyboard_rows = defaultdict(list)
-        for button in buttons:
-            keyboard_rows[button.row].append(button)
-
-        reply_markup = None
-        if buttons:
-            keyboard = [
-                [InlineKeyboardButton(
-                    text=btn.text, 
-                    callback_data=f"answer_{group_chat_id}_{btn.id}_{'none'}" #! btn.callback_data qo'shish
-                ) for btn in sorted(keyboard_rows[row], key=lambda btn: btn.position)]
-                for row in sorted(keyboard_rows.keys())
-            ]
-            reply_markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-        if bot_message.photo:
-            photo_path = await sync_to_async(default_storage.path, thread_sensitive=True)(bot_message.photo.name)
-            exists = await sync_to_async(os.path.exists)(photo_path)
-            if exists:
-                photo = FSInputFile(photo_path)
-                await bot.send_photo(chat_id=group_chat_id, photo=photo, caption=text, reply_markup=reply_markup)
-            else:
-                await bot.send_message(chat_id=group_chat_id, text=f"Ошибка: файл {photo_path} не найден.", reply_markup=reply_markup)
-        else:
-            await bot.send_message(chat_id=group_chat_id, text=text, reply_markup=reply_markup)
 
 
 @admin.action(description="Send to groups")
