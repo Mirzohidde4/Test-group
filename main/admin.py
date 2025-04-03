@@ -13,6 +13,7 @@ admin.site.unregister(Group)
 @admin.register(UserMod)
 class AdminUserMod(ModelAdmin):
     list_display = ('user_name', 'full_name')
+    search_fields = ('user_name', 'full_name')
 
 
 @admin.register(AdminMod)
@@ -35,11 +36,11 @@ class AdminGroupMod(ModelAdmin):
 class InlineButtons(StackedInline):
     model = InlineButton
     extra = 1
-    fields = ['text', 'text_response', 'row', 'position', 'is_correct', 'static']
+    fields = ['text', 'text_response', 'is_correct']
     ordering_field = ['text']
 
 
-@admin.action(description="Send to groups")
+@admin.action(description="Jo'natish")
 def send_to_group(modeladmin, request, queryset):
     """Отправка сообщений в группу из Django Admin"""
     for bot_message in queryset:
@@ -48,7 +49,8 @@ def send_to_group(modeladmin, request, queryset):
 
 @admin.register(BotMessage)
 class AdminBotMessage(ModelAdmin):
-    list_display = ('message_text',)    
+    list_display = ('message_text', 'static')    
+    list_filter = ('static',)
     inlines = [InlineButtons]
     actions = [send_to_group]
     
@@ -57,3 +59,10 @@ class AdminBotMessage(ModelAdmin):
     
     display_groups.short_description = 'Guruhlar'
     autocomplete_fields = ['to_group']
+
+
+@admin.register(UserAnswer)
+class UserAnswerAdmin(ModelAdmin):
+    list_display = ("username", "group_id", "button", "is_correct", "created_at")
+    list_filter = ("is_correct", "group_id", 'created_at')
+    search_fields = ("username",)

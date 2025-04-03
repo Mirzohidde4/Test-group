@@ -40,9 +40,15 @@ class GroupMod(models.Model):
 
 
 class BotMessage(models.Model):
+    CHOICES = (
+        ('Quiz', 'quiz'),
+        ('Regular', 'regular')
+    )
     message_text = models.TextField(verbose_name='xabar matni')
     to_group = models.ManyToManyField(GroupMod, verbose_name='manzil', related_name='manzillar')
     photo = models.ImageField(upload_to='images/', verbose_name='rasm', null=True, blank=True)
+    static = models.BooleanField(default=False, verbose_name='yashirin', null=True, blank=True)
+    type = models.CharField(max_length=10, choices=CHOICES, default='regular', verbose_name='turi')
 
     class Meta:
         verbose_name = 'Xabar'
@@ -59,7 +65,6 @@ class InlineButton(models.Model):
     row = models.IntegerField(default=1, null=True, blank=True, verbose_name='qator') 
     position = models.IntegerField(default=1, null=True, blank=True, verbose_name='raqam') 
     is_correct = models.BooleanField(default=False, verbose_name="to'g'ri")
-    static = models.BooleanField(default=False, verbose_name='static')
 
     class Meta:
         verbose_name = 'Tugma'
@@ -68,3 +73,19 @@ class InlineButton(models.Model):
 
     def __str__(self):
         return self.text
+    
+
+class UserAnswer(models.Model):
+    user_id = models.BigIntegerField(verbose_name='telegram id')
+    username = models.CharField(max_length=255, blank=True, null=True, verbose_name='foydalanuvchi ism')
+    group_id = models.BigIntegerField(verbose_name='guruh / kanal id')
+    button = models.ForeignKey(to=InlineButton, on_delete=models.CASCADE, verbose_name='tugma')
+    is_correct = models.BooleanField(verbose_name='to\'g\'ri')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='vaqt')
+
+    def __str__(self):
+        return f"{self.username} - {'✅' if self.is_correct else '❌'}"
+
+    class Meta:
+        verbose_name = 'Javob'
+        verbose_name_plural = 'Javoblar'
